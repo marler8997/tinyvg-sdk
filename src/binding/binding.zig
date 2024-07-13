@@ -85,8 +85,13 @@ const CError = error{
     IoError,
     EndOfStream,
     InvalidData,
+    InvalidMagic,
     UnsupportedColorFormat,
     UnsupportedVersion,
+    InvalidRange,
+    InvalidWidth,
+    InvalidHeight,
+    InvalidColorCount,
     Unsupported,
 };
 
@@ -108,7 +113,12 @@ fn errToC(err: CError) c.tinyvg_Error {
         error.EndOfStream => c.TINYVG_ERR_IO,
         error.InvalidData => c.TINYVG_ERR_INVALID_DATA,
         error.UnsupportedColorFormat => c.TINYVG_ERR_UNSUPPORTED,
+        error.InvalidMagic => c.TINYVG_ERR_INVALID_DATA,
         error.UnsupportedVersion => c.TINYVG_ERR_UNSUPPORTED,
+        error.InvalidRange => c.TINYVG_ERR_INVALID_DATA,
+        error.InvalidWidth => c.TINYVG_ERR_INVALID_DATA,
+        error.InvalidHeight => c.TINYVG_ERR_INVALID_DATA,
+        error.InvalidColorCount => c.TINYVG_ERR_INVALID_DATA,
         error.Unsupported => c.TINYVG_ERR_UNSUPPORTED,
     };
 }

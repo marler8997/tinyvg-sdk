@@ -120,7 +120,34 @@ pub const ColorEncoding = enum(u2) {
     ///
     /// **NOTE:** A conforming parser is allowed to reject any file with a custom color encoding, as these are meant to be parsed with a specific use case.
     custom = 3,
+
+    pub fn standard(self: ColorEncoding) ?StandardColorEncoding {
+        return switch (self) {
+            .u8888 => .u8888,
+            .u565 => .u565,
+            .f32 => .f32,
+            .custom => null,
+        };
+    }
 };
+
+pub const StandardColorEncoding = enum {
+    u8888,
+    u565,
+    f32,
+
+    pub fn getTableLen(self: StandardColorEncoding, count: u32) usize {
+        return @as(usize, count) * @as(usize, self.getByteLen());
+    }
+    pub fn getByteLen(self: StandardColorEncoding) u5 {
+        return switch (self) {
+            .u8888 => return 4,
+            .u565 => return 2,
+            .f32 => return 16,
+        };
+    }
+};
+
 
 /// A TinyVG scale value. Defines the scale for all units inside a graphic.
 /// The scale is defined by the number of decimal bits in a `i32`, thus scaling
@@ -230,6 +257,29 @@ pub const Color = extern struct {
                 .a = 1.0,
             },
             else => error.InvalidFormat,
+        };
+    }
+
+    pub fn fromRgba8(r: u8, g: u8, b: u8, a: u8) Self {
+        return .{
+            .r = @as(f32, @floatFromInt(r)) / 255.0,
+            .g = @as(f32, @floatFromInt(g)) / 255.0,
+            .b = @as(f32, @floatFromInt(b)) / 255.0,
+            .a = @as(f32, @floatFromInt(a)) / 255.0,
+        };
+    }
+};
+
+pub const Rgb16 = packed struct(u16) {
+    r: u5,
+    g: u6,
+    b: u5,
+    pub fn toColor(self: Rgb16) Color {
+        return .{
+            .r = @as(f32, @floatFromInt(self.r)) / 31.0,
+            .g = @as(f32, @floatFromInt(self.g)) / 63.0,
+            .b = @as(f32, @floatFromInt(self.b)) / 31.0,
+            .a = 1.0,
         };
     }
 };
